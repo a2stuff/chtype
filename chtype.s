@@ -80,11 +80,7 @@ SSGINFO         := $BEB4        ; Get/Set Info Parameter block
 FIFILID         := $BEB8        ; (set size to set=7 or get=$A)
 FIAUXID         := $BEB9
 FIMDATE         := $BEBE
-
-;;; ============================================================
-
-;;; TODO: Relocate into ProDOS-allocated buffer
-
+GETBUFR         := $BEF5
 ;;; ============================================================
 
         ;; Save previous external command address
@@ -93,18 +89,45 @@ FIMDATE         := $BEBE
         lda     EXTRNCMD+2
         sta     next_command+1
 
-        ;; Install in external command address
-        lda     #<handler
-        sta     EXTRNCMD+1
-        lda     #>handler
+        ;; Request a 1-page buffer
+        lda     #1
+        jsr     GETBUFR
+        bcc     :+
+        lda     #$C             ; NO BUFFERS AVAILABLE
+        rts
+:
+        ;; A = MSB of new page - update absolute addresses
+        ;; (aligned to page boundary so only MSB changes)
+        sta     page_num1
+        sta     page_num2
+        sta     page_num3
+
+        ;; Install new address in external command address
         sta     EXTRNCMD+2
+        lda     #0
+        sta     EXTRNCMD+1
+
+        ;; Relocate
+        ldx     #0
+:       lda     handler,x
+        page_num3 := *+2
+        sta     $2100,x         ; self-modified
+        inx
+        bne     :-
+
+        ;; Complete
         rts
 
 ;;; ============================================================
 ;;; Command Handler
 ;;; ============================================================
 
-handler:
+        ;; Align handler to page boundary for easier
+        ;; relocation
+        .res    $2100 - *, 0
+
+.proc handler
+
         ;; Check for this command, character by character.
         ldx     #0
 nxtchr: lda     INBUF,x
@@ -116,19 +139,21 @@ nxtchr: lda     INBUF,x
         bcs     :+
         and     #$DF
 
-:       cmp     cmd,x
+        page_num1 := *+2         ; address needing updating
+:       cmp     command_string,x
         bne     not_ours
         inx
-        cpx     #cmdlen
+        cpx     #command_length
         bne     nxtchr
 
         ;; A match - indicate end of command string for BI's parser.
-        lda     #cmdlen-1
+        lda     #command_length-1
         sta     XLEN
 
         ;; Point BI's parser at the command execution routine.
         lda     #<execute
         sta     XTRNADDR
+        page_num2 := *+1         ; address needing updating
         lda     #>execute
         sta     XTRNADDR+1
 
@@ -219,5 +244,12 @@ rts1:   rts
 ;;; ============================================================
 ;;; Data
 
-cmd:    .byte   "CHTYPE"        ; Command string
-        cmdlen  =  *-cmd
+command_string:
+        .byte   "CHTYPE"        ; Command string
+        command_length  =  *-command_string
+
+.endproc
+        .assert .sizeof(handler) <= $100, error, "Must fit on one page"
+        page_num1 := handler::page_num1
+        page_num2 := handler::page_num2
+        next_command := handler::next_command
