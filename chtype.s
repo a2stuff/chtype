@@ -54,7 +54,7 @@ FBITS           := $BE56        ; Found parameter bits
         FN1     = $01           ; Filename expected
 
         ;; PBITS+1
-        AD      = $08           ; Address
+        AD      = $80           ; Address
         B       = $40           ; Byte
         E       = $20           ; End address
         L       = $10           ; Length
