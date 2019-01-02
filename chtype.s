@@ -5,11 +5,13 @@
 ;;; Install:
 ;;;          -CHTYPE         (from BASIC.SYSTEM prompt)
 ;;; Usage:
-;;;          CHTYPE filename,Ttype[,Aaux][,S#][,D#]
+;;;          CHTYPE filename[,Ttype][,Aaux][,S#][,D#]
 ;;;
 ;;;  * filename can be relative or absolute path
+;;;  * specify T$nn to set file type
+;;;  * specify A$nnnn to set aux type info
 ;;;  * type can be BIN, SYS, TXT (etc) or $nn
-;;;  * optional A$1234 sets aux type info
+;;;  * with neither T nor A option, prints current values
 ;;;
 ;;; Build with: ca65 - https://cc65.github.io/doc/ca65.html
 ;;;
@@ -20,6 +22,13 @@
 ;;; ============================================================
 
 INBUF           := $200         ; GETLN input buffer
+
+;;; ============================================================
+;;; Monitor ROM routines
+
+CROUT   := $FD8E
+PRBYTE  := $FDDA
+COUT    := $FDED
 
 ;;; ============================================================
 ;;; ProDOS MLI / Global Page
@@ -189,16 +198,6 @@ execute:
         bne     :+
         lda     #$10            ; SYNTAX ERROR
         sec
-        rts
-:
-
-;;; --------------------------------------------------
-
-        lda     FBITS
-        and     #PBitsFlags::T  ; Type?
-        bne     :+
-        lda     #$B             ; INVALID PARAMETER
-        sec
 rts1:   rts
 :
 
@@ -213,23 +212,32 @@ rts1:   rts
 
 ;;; --------------------------------------------------
 
-        ;; Set new file info
-        lda     #$7
-        sta     SSGINFO
+        ;; Apply options
+        ldy     #0              ; count number of options
 
-        ;; Apply new file type
+        ;; Apply optional Type argument as new file type
+        lda     FBITS
+        and     #PBitsFlags::T  ; Type set?
+        beq     :+
+        iny
         lda     VTYPE
         sta     FIFILID
+:
 
         ;; Apply optional Address argument as new aux type
         lda     FBITS+1
-        and     #%10000000
+        and     #PBitsFlags::AD ; Address set?
         beq     :+
+        iny
         lda     VADDR
         sta     FIAUXID
         lda     VADDR+1
         sta     FIAUXID+1
 :
+
+        ;; If no options were used, show current details instead.
+        cpy     #0
+        beq     show
 
         ;; Apply current date/time
         ldx     #3
@@ -238,8 +246,40 @@ rts1:   rts
         dex
         bpl     :-
 
+        ;; Set new file info
+        lda     #$7
+        sta     SSGINFO
+
         lda     #SET_FILE_INFO
         jmp     GOSYSTEM
+
+;;; --------------------------------------------------
+
+show:
+        lda     #'T'|$80
+        jsr     COUT
+        lda     #'='|$80
+        jsr     COUT
+        lda     #'$'|$80
+        jsr     COUT
+        lda     VTYPE
+        jsr     PRBYTE
+        jsr     CROUT
+
+        lda     #'A'|$80
+        jsr     COUT
+        lda     #'='|$80
+        jsr     COUT
+        lda     #'$'|$80
+        jsr     COUT
+        lda     VADDR+1
+        jsr     PRBYTE
+        lda     VADDR
+        jsr     PRBYTE
+        jsr     CROUT
+
+        clc
+        rts
 
 ;;; ============================================================
 ;;; Data
