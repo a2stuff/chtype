@@ -25,6 +25,6 @@ Notes:
 * Can be invoked as lower case (e.g. `chtype ...`)
 
 Resources:
-* [File Types Table](http://www.easy68k.com/paulrsm/6502/PDOS8TRM.HTM#B-1T) - [ProDOS 8 Technical Reference Manual](http://www.easy68k.com/paulrsm/6502/PDOS8TRM.HTM) -
+* [File Types Table](http://www.easy68k.com/paulrsm/6502/PDOS8TRM.HTM#B-1T) - [ProDOS 8 Technical Reference Manual](http://www.easy68k.com/paulrsm/6502/PDOS8TRM.HTM)
 * [File Types](https://www.kreativekorp.com/miscpages/a2info/filetypes.shtml) - [Jon Relay's Apple II Info Archives](https://www.kreativekorp.com/miscpages/a2info/)
 * [ProDOS File Types 2.0](https://macgui.com/kb/article/116) - [Mac GUI](https://macgui.com)
