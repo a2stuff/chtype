@@ -262,7 +262,7 @@ show:
         jsr     COUT
         lda     #'$'|$80
         jsr     COUT
-        lda     VTYPE
+        lda     FIFILID
         jsr     PRBYTE
         jsr     CROUT
 
@@ -272,9 +272,9 @@ show:
         jsr     COUT
         lda     #'$'|$80
         jsr     COUT
-        lda     VADDR+1
+        lda     FIAUXID+1
         jsr     PRBYTE
-        lda     VADDR
+        lda     FIAUXID
         jsr     PRBYTE
         jsr     CROUT
 
