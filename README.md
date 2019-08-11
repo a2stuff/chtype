@@ -1,4 +1,4 @@
-# chtype - change file type command for ProDOS
+ # chtype - change file type command for ProDOS
 
 Build with [ca65](https://cc65.github.io/doc/ca65.html)
 
@@ -12,7 +12,7 @@ CHTYPE pathname[,Ttype][,Aauxtype][,S#][,D#]
 ```
 
 Examples:
-* `CHTYPE` - show current type/auxtype
+* `CHTYPE file` - show current type/auxtype
 * `CHTYPE pic,T$08` - set just type
 * `CHTYPE file,A$0640` - set just auxtype
 * `CHTYPE now_basic,TBAS,A$801` - set both type and auxtype
