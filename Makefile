@@ -4,7 +4,7 @@ LDFLAGS = --config apple2-asm.cfg
 
 OUTDIR = out
 
-TARGETS = $(OUTDIR)/chtype.BIN
+TARGETS = $(OUTDIR)/chtype.BIN $(OUTDIR)/chtime.BIN
 
 .PHONY: clean all
 all: $(OUTDIR) $(TARGETS)
