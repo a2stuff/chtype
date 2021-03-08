@@ -6,6 +6,8 @@ OUTDIR = out
 
 TARGETS = $(OUTDIR)/chtype.BIN $(OUTDIR)/chtime.BIN
 
+XATTR := $(shell command -v xattr 2> /dev/null)
+
 .PHONY: clean all
 all: $(OUTDIR) $(TARGETS)
 
@@ -25,4 +27,6 @@ $(OUTDIR)/%.o: %.s $(HEADERS)
 
 $(OUTDIR)/%.BIN $(OUTDIR)/%.SYS: $(OUTDIR)/%.o
 	ld65 $(LDFLAGS) -o $@ $<
+ifdef XATTR
 	xattr -wx prodos.AuxType '00 20' $@
+endif
