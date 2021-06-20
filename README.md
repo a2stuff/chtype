@@ -1,6 +1,6 @@
- # chtype - change file type command for ProDOS
+# chtype - change file type command for ProDOS
 
-[![Build Status](https://travis-ci.com/a2stuff/chtype.svg?branch=main)](https://travis-ci.com/a2stuff/chtype)
+[![build](https://github.com/a2stuff/chtype/actions/workflows/main.yml/badge.svg)](https://github.com/a2stuff/chtype/actions/workflows/main.yml)
 
 Build with [ca65](https://cc65.github.io/doc/ca65.html)
 
